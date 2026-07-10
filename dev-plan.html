@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CipherHeart — 開發計畫文件 v1.0</title>
+<style>
+  :root {
+    --bg:        #0d1117;
+    --surface:   #161b22;
+    --border:    #30363d;
+    --text:      #e6edf3;
+    --dim:       #8b949e;
+    --cyan:      #39d0d8;
+    --pink:      #ff6b9d;
+    --gold:      #ffd700;
+    --purple:    #a78bfa;
+    --green:     #3fb950;
+    --red:       #f85149;
+    --font-mono: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    --font-sans: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.7;
+    padding: 0;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(13,17,23,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  nav .brand {
+    font-family: var(--font-mono);
+    color: var(--cyan);
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 1rem 1.5rem 1rem 0;
+    border-right: 1px solid var(--border);
+    margin-right: 1rem;
+    flex-shrink: 0;
+  }
+  nav a {
+    color: var(--dim);
+    text-decoration: none;
+    padding: 1rem 0.8rem;
+    font-size: 0.85rem;
+    transition: color .2s;
+    flex-shrink: 0;
+  }
+  nav a:hover { color: var(--text); }
+
+  /* ── LAYOUT ── */
+  .wrapper {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 3rem 2rem 6rem;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    text-align: center;
+    padding: 4rem 0 3rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 3rem;
+  }
+  .hero .tag {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--cyan);
+    border: 1px solid var(--cyan);
+    border-radius: 3px;
+    padding: 2px 10px;
+    margin-bottom: 1.2rem;
+    letter-spacing: 2px;
+  }
+  .hero h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--cyan), var(--pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+  }
+  .hero .subtitle {
+    color: var(--dim);
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .hero .meta {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 0.8rem;
+    color: var(--dim);
+  }
+  .badge .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .dot-cyan   { background: var(--cyan); }
+  .dot-pink   { background: var(--pink); }
+  .dot-gold   { background: var(--gold); }
+  .dot-green  { background: var(--green); }
+
+  /* ── SECTION ── */
+  .section { margin-bottom: 4rem; }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-num {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--cyan);
+    background: rgba(57,208,216,0.1);
+    border: 1px solid rgba(57,208,216,0.3);
+    border-radius: 4px;
+    padding: 2px 8px;
+    flex-shrink: 0;
+  }
+  .section-header h2 { font-size: 1.4rem; font-weight: 600; }
+
+  h3 { font-size: 1.05rem; font-weight: 600; color: var(--cyan); margin: 2rem 0 0.75rem; }
+  h4 { font-size: 0.9rem; font-weight: 600; color: var(--pink); margin: 1.5rem 0 0.5rem; font-family: var(--font-mono); }
+  p  { margin-bottom: 0.8rem; }
+
+  /* ── CALLOUT ── */
+  .callout {
+    border-left: 3px solid;
+    padding: 0.75rem 1.2rem;
+    border-radius: 0 6px 6px 0;
+    margin: 1.2rem 0;
+    font-size: 0.9rem;
+  }
+  .callout.info    { border-color: var(--cyan);   background: rgba(57,208,216,0.06); }
+  .callout.warning { border-color: var(--gold);   background: rgba(255,215,0,0.06); }
+  .callout.danger  { border-color: var(--red);    background: rgba(248,81,73,0.06); }
+  .callout.tip     { border-color: var(--purple); background: rgba(167,139,250,0.06); }
+  .callout .label  { font-weight: 700; font-size: 0.75rem; letter-spacing: 1px; display: block; margin-bottom: 4px; }
+  .callout.info    .label { color: var(--cyan); }
+  .callout.warning .label { color: var(--gold); }
+  .callout.danger  .label { color: var(--red); }
+  .callout.tip     .label { color: var(--purple); }
+
+  /* ── TABLE ── */
+  .table-wrap { overflow-x: auto; margin: 1rem 0 1.5rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+  th { background: var(--surface); color: var(--dim); font-weight: 600; font-size: 0.75rem;
+       letter-spacing: 0.5px; text-align: left; padding: 0.6rem 1rem; border: 1px solid var(--border); }
+  td { padding: 0.6rem 1rem; border: 1px solid var(--border); vertical-align: top; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.82em;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    color: var(--cyan);
+  }
+
+  /* ── CODE BLOCK ── */
+  pre {
+    background: #0a0e14;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.2rem 1.5rem;
+    overflow-x: auto;
+    margin: 1rem 0 1.5rem;
+    font-size: 0.8rem;
+    line-height: 1.6;
+  }
+  pre code { background: none; border: none; padding: 0; color: #abb2bf; font-size: 1em; }
+  .cm { color: #5c6370; font-style: italic; }
+  .ck { color: #c678dd; }
+  .cs { color: #98c379; }
+  .cn { color: #e5c07b; }
+  .cf { color: #61afef; }
+  .cp { color: #ff6b9d; }
+
+  /* ── CHARACTER CARDS ── */
+  .char-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0 1.5rem;
+  }
+  .char-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .25s, transform .25s;
+  }
+  .char-card:hover { transform: translateY(-2px); }
+  .char-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+  .char-card[data-char="luze"]::before    { background: linear-gradient(90deg, #1a1a2e, #e94560); }
+  .char-card[data-char="xiechen"]::before { background: linear-gradient(90deg, #0f3460, #f5a623); }
+  .char-card[data-char="linjing"]::before { background: linear-gradient(90deg, #16213e, #7b68ee); }
+  .char-card[data-char="chuyan"]::before  { background: linear-gradient(90deg, #1b2838, #4ecdc4); }
+  .char-card[data-char="luze"]:hover    { border-color: #e94560; }
+  .char-card[data-char="xiechen"]:hover { border-color: #f5a623; }
+  .char-card[data-char="linjing"]:hover { border-color: #7b68ee; }
+  .char-card[data-char="chuyan"]:hover  { border-color: #4ecdc4; }
+  .char-name { font-size: 1.1rem; font-weight: 700; margin-bottom: 2px; }
+  .char-specialty {
+    font-family: var(--font-mono); font-size: 0.72rem; padding: 2px 8px;
+    border-radius: 3px; display: inline-block; margin-bottom: 0.75rem;
+  }
+  .char-card[data-char="luze"]    .char-specialty { color: #e94560; background: rgba(233,69,96,0.12); }
+  .char-card[data-char="xiechen"] .char-specialty { color: #f5a623; background: rgba(245,166,35,0.12); }
+  .char-card[data-char="linjing"] .char-specialty { color: #7b68ee; background: rgba(123,104,238,0.12); }
+  .char-card[data-char="chuyan"]  .char-specialty { color: #4ecdc4; background: rgba(78,205,196,0.12); }
+  .char-row { display: flex; gap: 0.5rem; margin-bottom: 0.35rem; font-size: 0.83rem; }
+  .char-row .lbl { color: var(--dim); flex-shrink: 0; width: 4.5em; }
+
+  /* ── PHASE LIST ── */
+  .phase-list { list-style: none; }
+  .phase-item { display: flex; gap: 1rem; padding: 0.75rem 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+  .phase-num { font-family: var(--font-mono); font-size: 0.72rem; color: var(--cyan);
+               background: rgba(57,208,216,0.1); border: 1px solid rgba(57,208,216,0.3);
+               border-radius: 4px; padding: 2px 8px; flex-shrink: 0; margin-top: 2px; }
+  .phase-title { font-weight: 600; font-size: 0.9rem; }
+  .phase-files { font-size: 0.8rem; color: var(--dim); margin-top: 2px; }
+
+  /* ── FILE TREE ── */
+  .file-tree {
+    font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.8;
+    background: #0a0e14; border: 1px solid var(--border); border-radius: 8px;
+    padding: 1.2rem 1.5rem; margin: 1rem 0 1.5rem;
+  }
+  .file-tree .dir  { color: var(--cyan); }
+  .file-tree .file { color: #abb2bf; }
+  .file-tree .cmt  { color: #5c6370; }
+
+  /* ── RULE CHIPS ── */
+  .rules { display: flex; flex-direction: column; gap: 0.6rem; margin: 1rem 0; }
+  .rule {
+    display: flex; gap: 0.75rem; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 6px; padding: 0.7rem 1rem; font-size: 0.85rem;
+  }
+  .rule .icon { flex-shrink: 0; font-size: 1rem; }
+  .rule .rule-text strong { color: var(--cyan); }
+
+  footer {
+    text-align: center; padding: 2rem; border-top: 1px solid var(--border);
+    color: var(--dim); font-size: 0.8rem; font-family: var(--font-mono);
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="brand">CipherHeart / dev-plan</span>
+  <a href="#sdd">SDD</a>
+  <a href="#characters">角色</a>
+  <a href="#story">劇情</a>
+  <a href="#tdd">TDD</a>
+  <a href="#filestructure">檔案結構</a>
+  <a href="#schema">腳本格式</a>
+  <a href="#security">資安</a>
+  <a href="#html">HTML 骨架</a>
+  <a href="#phase">實作順序</a>
+  <a href="#rules">給 AI 的規則</a>
+</nav>
+
+<div class="wrapper">
+
+<!-- HERO -->
+<div class="hero">
+  <span class="tag">OTOME GAME × CTF</span>
+  <h1>CipherHeart</h1>
+  <p class="subtitle">在那個終端機亮起的夜晚｜開發計畫文件 v1.0</p>
+  <div class="meta">
+    <span class="badge"><span class="dot dot-cyan"></span>純前端 · GitHub Pages</span>
+    <span class="badge"><span class="dot dot-pink"></span>乙女遊戲 · 繁體中文</span>
+    <span class="badge"><span class="dot dot-gold"></span>零外部 JS 依賴</span>
+    <span class="badge"><span class="dot dot-green"></span>HTML5 + CSS3 + Vanilla JS</span>
+  </div>
+</div>
+
+<!-- ══ SDD ══ -->
+<div id="sdd" class="section">
+  <div class="section-header">
+    <span class="section-num">SDD</span>
+    <h2>軟體設計文件</h2>
+  </div>
+
+  <h3>1.1 專案概述</h3>
+  <div class="table-wrap"><table>
+    <tr><th>項目</th><th>內容</th></tr>
+    <tr><td>專案名稱</td><td><strong>CipherHeart</strong></td></tr>
+    <tr><td>副標題</td><td>在那個終端機亮起的夜晚</td></tr>
+    <tr><td>類型</td><td>視覺小說 / 乙女遊戲（Otome Game）</td></tr>
+    <tr><td>語言</td><td>繁體中文</td></tr>
+    <tr><td>平台</td><td>瀏覽器（GitHub Pages 靜態部署）</td></tr>
+    <tr><td>技術棧</td><td><code>HTML5</code> + <code>CSS3</code> + <code>Vanilla JS</code>（零外部依賴）</td></tr>
+    <tr><td>攻略角色</td><td>4 位</td></tr>
+    <tr><td>結局數</td><td>每角色 3 種（Good / Normal / Bad）= 共 12 結局</td></tr>
+  </table></div>
+
+  <h3>1.2 世界觀設定</h3>
+  <p><strong>時代背景：</strong>現代，某知名資安學院「CipherAcademy」</p>
+  <p><strong>核心敘事：</strong>玩家（女主角「林夏」，可自訂名字）以交換生身份加入學院頂尖資安戰隊「0xHeart」，陰錯陽差成為隊員並共同備戰年度「CipherHeart CTF」大賽決賽。在四週備戰期中，與四位隊員共同解題、互相了解，逐漸產生超越隊友的情感。</p>
+  <div class="callout info"><span class="label">核心主題</span>「駭入對方的心，比駭入系統更難。」</div>
+
+  <h3 id="characters">1.3 攻略角色設計</h3>
+  <div class="char-cards">
+    <div class="char-card" data-char="luze">
+      <div class="char-name">陸澤 Lù Zé</div>
+      <span class="char-specialty">Pwn 二進位漏洞</span>
+      <div class="char-row"><span class="lbl">年齡</span><span>23 歲</span></div>
+      <div class="char-row"><span class="lbl">帥法</span><span>冷酷危險型。骨相立體，眼神帶壓迫感，說話直接刻薄</span></div>
+      <div class="char-row"><span class="lbl">外觀</span><span>黑色短髮帶凌亂感，深邃雙眼，尖銳下顎線；黑色連帽衫半拉鍊，暗色工裝褲</span></div>
+      <div class="char-row"><span class="lbl">個性</span><span>寡言、高傲；對喜歡的人用行動代替言語</span></div>
+      <div class="char-row"><span class="lbl">口頭禪</span><span>「你的邏輯有 off-by-one 錯誤。」</span></div>
+      <div class="char-row"><span class="lbl">觸發</span><span>深夜被他主動幫忙；不被嚇到反嗆回去</span></div>
+      <div class="char-row"><span class="lbl">色票</span><span><code>#1a1a2e</code> / <code style="color:#e94560">#e94560</code></span></div>
+    </div>
+    <div class="char-card" data-char="xiechen">
+      <div class="char-name">謝晨 Xiè Chén</div>
+      <span class="char-specialty">Web 滲透測試</span>
+      <div class="char-row"><span class="lbl">年齡</span><span>22 歲</span></div>
+      <div class="char-row"><span class="lbl">帥法</span><span>陽光致命型。笑容殺傷力極高，本人完全不自知</span></div>
+      <div class="char-row"><span class="lbl">外觀</span><span>栗棕色微捲頭髮，眼睛笑起來像月牙；淺色衛衣或格紋襯衫</span></div>
+      <div class="char-row"><span class="lbl">個性</span><span>話多、熱情；看似大條，實際觀察力極強</span></div>
+      <div class="char-row"><span class="lbl">口頭禪</span><span>「這個 cookie 好像可以動一動呢～」</span></div>
+      <div class="char-row"><span class="lbl">觸發</span><span>半夜互傳 writeup；他突然認真起來的瞬間</span></div>
+      <div class="char-row"><span class="lbl">色票</span><span><code>#0f3460</code> / <code style="color:#f5a623">#f5a623</code></span></div>
+    </div>
+    <div class="char-card" data-char="linjing">
+      <div class="char-name">林鏡 Lín Jìng</div>
+      <span class="char-specialty">Crypto 密碼學</span>
+      <div class="char-row"><span class="lbl">年齡</span><span>22 歲</span></div>
+      <div class="char-row"><span class="lbl">帥法</span><span>傲嬌貴公子型。細框眼鏡，氣場高冷，偶爾臉紅</span></div>
+      <div class="char-row"><span class="lbl">外觀</span><span>直挺黑髮整齊側分，白色 Oxford 襯衫搭毛衣背心，黑框細眼鏡</span></div>
+      <div class="char-row"><span class="lbl">個性</span><span>嘴硬心軟，在意排名，被讚美假裝淡定</span></div>
+      <div class="char-row"><span class="lbl">口頭禪</span><span>「這道題用暴力解？你的 CPU 要哭了。」</span></div>
+      <div class="char-row"><span class="lbl">觸發</span><span>幫他找到數學推導的 bug；在眾人面前誇他</span></div>
+      <div class="char-row"><span class="lbl">色票</span><span><code>#16213e</code> / <code style="color:#7b68ee">#7b68ee</code></span></div>
+    </div>
+    <div class="char-card" data-char="chuyan">
+      <div class="char-name">楚言 Chǔ Yán</div>
+      <span class="char-specialty">Misc 隱寫術・OSINT</span>
+      <div class="char-row"><span class="lbl">年齡</span><span>24 歲（大四學長）</span></div>
+      <div class="char-row"><span class="lbl">帥法</span><span>溫柔包容型。笑容有安全感，偶有神秘感</span></div>
+      <div class="char-row"><span class="lbl">外觀</span><span>深棕長髮微微蓋耳，溫和眼型；灰色或米色寬鬆長版外套</span></div>
+      <div class="char-row"><span class="lbl">個性</span><span>耐心、包容；隱藏著過去未說出口的故事</span></div>
+      <div class="char-row"><span class="lbl">口頭禪</span><span>「隱藏在表面之下的，才是真正的訊息。」</span></div>
+      <div class="char-row"><span class="lbl">觸發</span><span>深夜被他遞咖啡；一起找到隱寫術的 flag</span></div>
+      <div class="char-row"><span class="lbl">色票</span><span><code>#1b2838</code> / <code style="color:#4ecdc4">#4ecdc4</code></span></div>
+    </div>
+  </div>
+
+  <h3 id="story">1.4 劇情架構</h3>
+  <pre><code>序章（共同路線）
+  ├─ 第一章：入隊（4 天，介紹所有角色）
+  ├─ 第二章：初戰（好感度分岐點 → 選擇深入了解的對象）
+  └─ 好感度達標 → 進入角色專屬路線
+
+角色路線（各 3 章）
+  ├─ 第三章：解題羈絆（合作解題，情感升溫）
+  ├─ 第四章：裂縫（誤解或衝突，考驗選擇）
+  └─ 第五章：決賽夜（依好感度 → 三種結局）
+
+結局分支：
+  Good End  （好感 ≥ 80） 告白 + 贏得比賽
+  Normal End（好感 50-79）曖昧收場，留白
+  Bad End   （好感 &lt; 50） 錯過，獨自離開</code></pre>
+
+  <h3>1.5 CTF 互動謎題設計</h3>
+  <div class="table-wrap"><table>
+    <tr><th>謎題</th><th>融入劇情方式</th><th>互動機制</th></tr>
+    <tr><td>Base64 解碼</td><td>角色傳來加密的「訊息」</td><td>輸入框解題，答對觸發劇情</td></tr>
+    <tr><td>凱薩密碼</td><td>線索藏在便條紙的移位文字</td><td>選擇偏移量（UI 轉盤）</td></tr>
+    <tr><td>Hex 閱讀</td><td>系統日誌中的隱藏訊息</td><td>從選項中找正確翻譯</td></tr>
+    <tr><td>隱寫術邏輯</td><td>照片中藏著角色的真心話</td><td>點擊圖片特定區域</td></tr>
+  </table></div>
+  <div class="callout tip"><span class="label">TIP</span>所有謎題均提供「提示」按鈕，顯示段落式提示，不影響好感度，確保玩家不卡關。</div>
+
+  <h3>1.6 UI 設計系統</h3>
+  <div class="table-wrap"><table>
+    <tr><th>元素</th><th>規格</th></tr>
+    <tr><td>整體風格</td><td>賽博朋克 × 乙女遊戲融合；深夜城市 + 終端機光效</td></tr>
+    <tr><td>對話框</td><td>半透明毛玻璃（<code>backdrop-filter: blur</code>），底部固定</td></tr>
+    <tr><td>角色名牌</td><td>仿終端機標籤：<code>[name@cipheracademy]</code> 格式</td></tr>
+    <tr><td>字型</td><td>Noto Sans TC（對話）+ Share Tech Mono（終端機 / 謎題）</td></tr>
+    <tr><td>按鈕</td><td>霓虹邊框，hover 時光暈擴散動畫</td></tr>
+    <tr><td>好感度計</td><td>心電圖形式的 progress bar，階段到達時脈衝動畫</td></tr>
+  </table></div>
+  <h4>CSS 設計 Token（main.css 必須定義）</h4>
+  <pre><code><span class="ck">:root</span> {
+  <span class="cm">/* 背景層次 */</span>
+  --color-bg-deep:       <span class="cs">#080b1a</span>;
+  --color-bg-mid:        <span class="cs">#0d1117</span>;
+  --color-surface:       <span class="cs">rgba(255,255,255,0.05)</span>;
+  --color-border:        <span class="cs">rgba(255,255,255,0.12)</span>;
+  <span class="cm">/* 文字 */</span>
+  --color-text-main:     <span class="cs">#e8eaf6</span>;
+  --color-text-dim:      <span class="cs">#8892b0</span>;
+  <span class="cm">/* 強調色 */</span>
+  --color-accent-cyan:   <span class="cs">#64ffda</span>;
+  --color-accent-pink:   <span class="cs">#ff6b9d</span>;
+  --color-accent-gold:   <span class="cs">#ffd700</span>;
+  --color-accent-purple: <span class="cs">#a78bfa</span>;
+  <span class="cm">/* 字型 */</span>
+  --font-dialog:   <span class="cs">'Noto Sans TC'</span>, sans-serif;
+  --font-terminal: <span class="cs">'Share Tech Mono'</span>, monospace;
+}</code></pre>
+</div>
+
+<!-- ══ TDD ══ -->
+<div id="tdd" class="section">
+  <div class="section-header">
+    <span class="section-num">TDD</span>
+    <h2>技術設計文件</h2>
+  </div>
+
+  <h3 id="filestructure">2.1 檔案結構</h3>
+  <div class="file-tree">
+<span class="dir">cipherheart/</span>
+├── <span class="file">index.html</span>                   <span class="cmt"># 唯一入口，SPA 架構</span>
+├── <span class="dir">css/</span>
+│   ├── <span class="file">main.css</span>                 <span class="cmt"># Token、全域樣式、共用元件</span>
+│   ├── <span class="file">screens.css</span>              <span class="cmt"># 各畫面版面樣式</span>
+│   └── <span class="file">animations.css</span>           <span class="cmt"># 過場動畫、微互動</span>
+├── <span class="dir">js/</span>
+│   ├── <span class="file">main.js</span>                  <span class="cmt"># 入口，初始化遊戲引擎</span>
+│   ├── <span class="dir">engine/</span>
+│   │   ├── <span class="file">GameEngine.js</span>        <span class="cmt"># 核心狀態機</span>
+│   │   ├── <span class="file">SceneManager.js</span>      <span class="cmt"># 畫面 / 場景切換</span>
+│   │   ├── <span class="file">DialogManager.js</span>     <span class="cmt"># 對話流程控制（打字機效果）</span>
+│   │   └── <span class="file">SaveSystem.js</span>        <span class="cmt"># 存讀檔 + checksum 防竄改</span>
+│   ├── <span class="dir">data/</span>
+│   │   ├── <span class="file">characters.js</span>        <span class="cmt"># 角色定義</span>
+│   │   ├── <span class="file">puzzles.js</span>           <span class="cmt"># CTF 謎題資料庫</span>
+│   │   └── <span class="dir">scenes/</span>
+│   │       ├── <span class="file">prologue.js</span>
+│   │       ├── <span class="file">ch01.js</span>
+│   │       ├── <span class="file">ch02.js</span>          <span class="cmt"># 分岐章節</span>
+│   │       ├── <span class="dir">luze/</span>            <span class="cmt"># ch03~ch05</span>
+│   │       ├── <span class="dir">xiechen/</span>
+│   │       ├── <span class="dir">linjing/</span>
+│   │       └── <span class="dir">chuyan/</span>
+│   └── <span class="dir">ui/</span>
+│       ├── <span class="file">DialogBox.js</span>
+│       ├── <span class="file">ChoiceMenu.js</span>
+│       ├── <span class="file">AffinityBar.js</span>
+│       ├── <span class="file">SaveSlots.js</span>
+│       └── <span class="file">Gallery.js</span>
+└── <span class="dir">assets/</span>
+    ├── <span class="dir">characters/</span>              <span class="cmt"># 角色立繪 PNG（透明背景）</span>
+    │   └── <span class="cmt">[char]_[expr].png × 20 張（5 表情 × 4 角色）</span>
+    ├── <span class="dir">backgrounds/</span>             <span class="cmt"># 場景背景（classroom / lab_night / rooftop …）</span>
+    ├── <span class="dir">cg/</span>                      <span class="cmt"># CG 插圖（解鎖制，每角色 3 張）</span>
+    └── <span class="dir">ui/</span>
+        ├── <span class="file">logo.png</span>
+        └── <span class="file">title_bg.png</span>
+  </div>
+
+  <h3>2.2 遊戲狀態模型（GameState）</h3>
+  <pre><code><span class="cm">// GameState — 單例，由 GameEngine 維護</span>
+<span class="ck">const</span> <span class="cn">GameState</span> = {
+  <span class="cp">playerName</span>: <span class="cs">"林夏"</span>,
+  <span class="cp">currentScene</span>: <span class="cs">"prologue"</span>,
+  <span class="cp">currentNode</span>: <span class="cn">0</span>,
+  <span class="cp">chapter</span>: <span class="cn">0</span>,
+  <span class="cp">selectedRoute</span>: <span class="ck">null</span>,       <span class="cm">// "luze"|"xiechen"|"linjing"|"chuyan"</span>
+  <span class="cp">affinity</span>: { <span class="cp">luze</span>:<span class="cn">0</span>, <span class="cp">xiechen</span>:<span class="cn">0</span>, <span class="cp">linjing</span>:<span class="cn">0</span>, <span class="cp">chuyan</span>:<span class="cn">0</span> },
+  <span class="cp">unlockedCGs</span>: [],
+  <span class="cp">readScenes</span>: <span class="ck">new</span> <span class="cn">Set</span>(),      <span class="cm">// 已讀場景（for skip）</span>
+  <span class="cp">clearedRoutes</span>: [],
+  <span class="cp">solvedPuzzles</span>: {},
+  <span class="cp">settings</span>: {
+    <span class="cp">textSpeed</span>: <span class="cn">40</span>,            <span class="cm">// ms/字</span>
+    <span class="cp">autoSpeed</span>: <span class="cn">2000</span>,          <span class="cm">// ms/換頁</span>
+    <span class="cp">dialogOpacity</span>: <span class="cn">0.85</span>
+  },
+  <span class="cp">_hash</span>: <span class="cs">""</span>                    <span class="cm">// 防竄改 checksum</span>
+};</code></pre>
+
+  <h3 id="schema">2.3 場景腳本格式（Scene Node Schema）</h3>
+  <div class="callout warning"><span class="label">IMPORTANT</span>劇本 JS 只定義資料陣列，禁止直接操作 DOM 或 localStorage，一律由 Engine 處理。</div>
+  <div class="table-wrap"><table>
+    <tr><th>type</th><th>必要欄位</th><th>說明</th></tr>
+    <tr><td><code>background</code></td><td><code>id</code>, <code>transition</code></td><td>切換背景圖（fade / cut / slide）</td></tr>
+    <tr><td><code>character</code></td><td><code>character</code>, <code>expression</code>, <code>position</code>, <code>action</code></td><td>角色立繪（enter / exit / stay）</td></tr>
+    <tr><td><code>dialog</code></td><td><code>character</code>, <code>text</code>, <code>expression</code></td><td>對話節點，text 支援 <code>{playerName}</code> 佔位</td></tr>
+    <tr><td><code>narration</code></td><td><code>text</code></td><td>無角色的旁白</td></tr>
+    <tr><td><code>choice</code></td><td><code>choices[]</code></td><td>選項陣列，每項含 text / affinity delta / next</td></tr>
+    <tr><td><code>puzzle</code></td><td><code>puzzleId</code>, <code>onSuccess</code>, <code>onFail</code></td><td>觸發 CTF 謎題</td></tr>
+    <tr><td><code>cg</code></td><td><code>cgId</code>, <code>duration</code></td><td>解鎖並展示 CG 插圖</td></tr>
+    <tr><td><code>setFlag</code></td><td><code>flag</code>, <code>value</code></td><td>設定劇情旗標</td></tr>
+    <tr><td><code>jump</code></td><td><code>scene</code></td><td>跳轉至指定場景</td></tr>
+    <tr><td><code>end</code></td><td><code>endingType</code>, <code>character</code></td><td>觸發結局（good / normal / bad）</td></tr>
+  </table></div>
+  <h4>範例腳本片段</h4>
+  <pre><code><span class="ck">const</span> <span class="cn">scene_luze_ch03</span> = [
+  { <span class="cp">type</span>: <span class="cs">"background"</span>, <span class="cp">id</span>: <span class="cs">"lab_night"</span>, <span class="cp">transition</span>: <span class="cs">"fade"</span> },
+  { <span class="cp">type</span>: <span class="cs">"character"</span>, <span class="cp">character</span>: <span class="cs">"luze"</span>, <span class="cp">expression</span>: <span class="cs">"normal"</span>,
+    <span class="cp">position</span>: <span class="cs">"right"</span>, <span class="cp">action</span>: <span class="cs">"enter"</span> },
+  { <span class="cp">type</span>: <span class="cs">"dialog"</span>, <span class="cp">character</span>: <span class="cs">"luze"</span>, <span class="cp">expression</span>: <span class="cs">"normal"</span>,
+    <span class="cp">text</span>: <span class="cs">"{playerName}，你的邏輯有 off-by-one 錯誤。"</span> },
+  { <span class="cp">type</span>: <span class="cs">"choice"</span>, <span class="cp">choices</span>: [
+    { <span class="cp">text</span>: <span class="cs">"「謝謝你指出來。」"</span>,          <span class="cp">affinity</span>: { <span class="cp">luze</span>: <span class="cn">+5</span>  }, <span class="cp">next</span>: <span class="ck">null</span> },
+    { <span class="cp">text</span>: <span class="cs">"「你的態度也有 bug。」"</span>,       <span class="cp">affinity</span>: { <span class="cp">luze</span>: <span class="cn">+10</span> }, <span class="cp">next</span>: <span class="ck">null</span> },
+    { <span class="cp">text</span>: <span class="cs">"（沉默）"</span>,                    <span class="cp">affinity</span>: { <span class="cp">luze</span>: <span class="cn">-5</span>  }, <span class="cp">next</span>: <span class="ck">null</span> }
+  ]},
+  { <span class="cp">type</span>: <span class="cs">"puzzle"</span>, <span class="cp">puzzleId</span>: <span class="cs">"base64_001"</span>,
+    <span class="cp">onSuccess</span>: { <span class="cp">affinity</span>: { <span class="cp">luze</span>: <span class="cn">+15</span> }, <span class="cp">nextScene</span>: <span class="ck">null</span> },
+    <span class="cp">onFail</span>:    { <span class="cp">affinity</span>: {},              <span class="cp">nextScene</span>: <span class="ck">null</span> } },
+  { <span class="cp">type</span>: <span class="cs">"cg"</span>, <span class="cp">cgId</span>: <span class="cs">"luze_cg01"</span>, <span class="cp">duration</span>: <span class="cn">3000</span> },
+  { <span class="cp">type</span>: <span class="cs">"end"</span>, <span class="cp">endingType</span>: <span class="cs">"good"</span>, <span class="cp">character</span>: <span class="cs">"luze"</span> }
+];</code></pre>
+
+  <h3>2.4 存檔系統（SaveSystem）規格</h3>
+  <pre><code><span class="ck">class</span> <span class="cn">SaveSystem</span> {
+  <span class="ck">static</span> <span class="cn">SLOTS</span> = <span class="cn">6</span>;
+  <span class="ck">static</span> <span class="cn">KEY_PREFIX</span> = <span class="cs">"ch_save_"</span>;
+
+  <span class="cm">// djb2 hash — 計算關鍵欄位的防竄改摘要</span>
+  <span class="ck">static</span> <span class="cf">_hash</span>(state) {
+    <span class="ck">const</span> critical = <span class="cn">JSON</span>.<span class="cf">stringify</span>({
+      affinity:      state.affinity,
+      clearedRoutes: state.clearedRoutes,
+      unlockedCGs:   state.unlockedCGs
+    });
+    <span class="ck">let</span> h = <span class="cn">5381</span>;
+    <span class="ck">for</span> (<span class="ck">let</span> i = <span class="cn">0</span>; i &lt; critical.length; i++) {
+      h = ((h &lt;&lt; <span class="cn">5</span>) + h) + critical.<span class="cf">charCodeAt</span>(i);
+      h |= <span class="cn">0</span>;
+    }
+    <span class="ck">return</span> h.<span class="cf">toString</span>(<span class="cn">16</span>);
+  }
+
+  <span class="ck">static</span> <span class="cf">save</span>(slot, state) {
+    <span class="ck">const</span> payload = { ...state, <span class="cp">_hash</span>: <span class="ck">this</span>.<span class="cf">_hash</span>(state) };
+    localStorage.<span class="cf">setItem</span>(<span class="ck">this</span>.KEY_PREFIX + slot, <span class="cn">JSON</span>.<span class="cf">stringify</span>(payload));
+  }
+
+  <span class="ck">static</span> <span class="cf">load</span>(slot) {
+    <span class="ck">const</span> raw = localStorage.<span class="cf">getItem</span>(<span class="ck">this</span>.KEY_PREFIX + slot);
+    <span class="ck">if</span> (!raw) <span class="ck">return null</span>;
+    <span class="ck">const</span> { _hash, ...rest } = <span class="cn">JSON</span>.<span class="cf">parse</span>(raw);
+    <span class="ck">if</span> (<span class="ck">this</span>.<span class="cf">_hash</span>(rest) !== _hash) {
+      console.<span class="cf">warn</span>(<span class="cs">"[SaveSystem] 存檔完整性驗證失敗，可能遭到竄改。"</span>);
+      <span class="ck">return null</span>;
+    }
+    <span class="ck">return</span> rest;
+  }
+}</code></pre>
+
+  <h3>2.5 核心 Class 介面</h3>
+  <div class="table-wrap"><table>
+    <tr><th>Class</th><th>方法</th><th>說明</th></tr>
+    <tr><td rowspan="7"><code>GameEngine</code></td><td><code>init()</code></td><td>初始化，讀取設定，顯示標題畫面</td></tr>
+    <tr><td><code>startNewGame(name)</code></td><td>新遊戲</td></tr>
+    <tr><td><code>loadGame(slot)</code></td><td>讀檔（含 checksum 驗證）</td></tr>
+    <tr><td><code>advanceScene()</code></td><td>推進場景節點</td></tr>
+    <tr><td><code>makeChoice(index)</code></td><td>玩家選擇，更新好感度</td></tr>
+    <tr><td><code>getEndingType(char)</code></td><td>依好感度回傳 good/normal/bad</td></tr>
+    <tr><td><code>checkRouteUnlock()</code></td><td>判斷路線解鎖條件</td></tr>
+    <tr><td rowspan="5"><code>SceneManager</code></td><td><code>showScreen(id)</code></td><td>切換畫面（title/game/gallery…）</td></tr>
+    <tr><td><code>transitionBG(id, type)</code></td><td>背景切換動畫</td></tr>
+    <tr><td><code>showCharacter(char, expr, pos)</code></td><td>顯示角色立繪</td></tr>
+    <tr><td><code>hideCharacter(char)</code></td><td>隱藏角色</td></tr>
+    <tr><td><code>showCG(id)</code></td><td>顯示 CG 插圖</td></tr>
+    <tr><td rowspan="5"><code>DialogManager</code></td><td><code>showDialog(char, text, expr)</code></td><td>顯示對話（逐字打字效果）</td></tr>
+    <tr><td><code>showChoices(choices)</code></td><td>顯示選項選單</td></tr>
+    <tr><td><code>showBacklog()</code></td><td>顯示對話歷史</td></tr>
+    <tr><td><code>skipToNext()</code></td><td>快速略過已讀內容</td></tr>
+    <tr><td><code>toggleAuto()</code></td><td>自動播放開關</td></tr>
+  </table></div>
+
+  <h3 id="security">2.6 資安實作規範</h3>
+  <div class="callout danger"><span class="label">SECURITY REQUIREMENTS</span>以下規範為強制要求，所有 Phase 均須遵守。</div>
+  <div class="table-wrap"><table>
+    <tr><th>風險</th><th>規範</th></tr>
+    <tr><td><strong>XSS</strong></td><td>所有動態文字（含玩家名字）一律用 <code>element.textContent = …</code>，嚴禁 <code>innerHTML</code> 注入任何外部輸入</td></tr>
+    <tr><td><strong>存檔竄改</strong></td><td><code>localStorage</code> 存檔含 djb2 checksum，載入時驗證，失敗拒絕並顯示警告</td></tr>
+    <tr><td><strong>原型鏈污染</strong></td><td>謎題答案比對使用 <code>Map</code> 或 <code>Object.hasOwn()</code>，不用裸 object</td></tr>
+    <tr><td><strong>敏感資料</strong></td><td>零 API Key、零外部請求、所有資源本地化</td></tr>
+    <tr><td><strong>依賴風險</strong></td><td>零 npm / CDN JS 依賴，降低供應鏈風險</td></tr>
+    <tr><td><strong>玩家輸入</strong></td><td>名字 <code>maxlength="6"</code>，讀取時 sanitize 至純文字，禁止 eval / Function 操作</td></tr>
+  </table></div>
+
+  <h3>2.7 響應式斷點</h3>
+  <div class="table-wrap"><table>
+    <tr><th>裝置</th><th>寬度</th><th>處理方式</th></tr>
+    <tr><td>手機直向</td><td>&lt; 480px</td><td>角色立繪縮小置中，對話框全寬，HUD 圖示化</td></tr>
+    <tr><td>手機橫向 / 平板</td><td>480–768px</td><td>標準版面</td></tr>
+    <tr><td>桌機</td><td>&gt; 768px</td><td>最大寬 1280px 置中，左右留黑</td></tr>
+  </table></div>
+</div>
+
+<!-- ══ HTML 骨架 ══ -->
+<div id="html" class="section">
+  <div class="section-header">
+    <span class="section-num">HTML</span>
+    <h2>完整 index.html 骨架</h2>
+  </div>
+  <div class="callout info"><span class="label">ARCHITECTURE</span>SPA（單頁應用）：只有一個 <code>index.html</code>。所有「畫面」都是 <code>&lt;section class="screen"&gt;</code> 的 show/hide 切換，由 <code>SceneManager.showScreen(id)</code> 控制。active class 代表當前顯示的畫面。</div>
+  <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=<span class="cs">"zh-TW"</span>&gt;
+&lt;head&gt;
+  &lt;meta charset=<span class="cs">"UTF-8"</span>&gt;
+  &lt;meta name=<span class="cs">"viewport"</span> content=<span class="cs">"width=device-width, initial-scale=1.0"</span>&gt;
+  &lt;meta name=<span class="cs">"description"</span> content=<span class="cs">"CipherHeart - CTF 資安主題乙女遊戲"</span>&gt;
+  &lt;title&gt;CipherHeart｜在那個終端機亮起的夜晚&lt;/title&gt;
+  &lt;link rel=<span class="cs">"preconnect"</span> href=<span class="cs">"https://fonts.googleapis.com"</span>&gt;
+  &lt;link href=<span class="cs">"https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&amp;family=Share+Tech+Mono&amp;display=swap"</span> rel=<span class="cs">"stylesheet"</span>&gt;
+  &lt;link rel=<span class="cs">"stylesheet"</span> href=<span class="cs">"css/main.css"</span>&gt;
+  &lt;link rel=<span class="cs">"stylesheet"</span> href=<span class="cs">"css/screens.css"</span>&gt;
+  &lt;link rel=<span class="cs">"stylesheet"</span> href=<span class="cs">"css/animations.css"</span>&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+<span class="cm">&lt;!-- ══ SCREEN: 標題畫面 ══ --&gt;</span>
+&lt;section id=<span class="cs">"screen-title"</span> class=<span class="cs">"screen active"</span>&gt;
+  &lt;div class=<span class="cs">"title-bg"</span> aria-hidden=<span class="cs">"true"</span>&gt;&lt;/div&gt;
+  &lt;div class=<span class="cs">"title-overlay"</span> aria-hidden=<span class="cs">"true"</span>&gt;&lt;/div&gt;
+  &lt;div class=<span class="cs">"title-content"</span>&gt;
+    &lt;div class=<span class="cs">"title-logo"</span>&gt;
+      &lt;img src=<span class="cs">"assets/ui/logo.png"</span> alt=<span class="cs">"CipherHeart"</span>&gt;
+      &lt;p class=<span class="cs">"title-subtitle"</span>&gt;在那個終端機亮起的夜晚&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;nav class=<span class="cs">"title-menu"</span> aria-label=<span class="cs">"主選單"</span>&gt;
+      &lt;button id=<span class="cs">"btn-new-game"</span>  class=<span class="cs">"menu-btn"</span>&gt;新遊戲&lt;/button&gt;
+      &lt;button id=<span class="cs">"btn-continue"</span>   class=<span class="cs">"menu-btn"</span>&gt;繼續&lt;/button&gt;
+      &lt;button id=<span class="cs">"btn-gallery"</span>    class=<span class="cs">"menu-btn"</span>&gt;CG 鑑賞&lt;/button&gt;
+      &lt;button id=<span class="cs">"btn-settings"</span>   class=<span class="cs">"menu-btn"</span>&gt;設定&lt;/button&gt;
+      &lt;button id=<span class="cs">"btn-about"</span>      class=<span class="cs">"menu-btn"</span>&gt;關於&lt;/button&gt;
+    &lt;/nav&gt;
+  &lt;/div&gt;
+&lt;/section&gt;
+
+<span class="cm">&lt;!-- ══ SCREEN: 名稱輸入 ══ --&gt;</span>
+&lt;section id=<span class="cs">"screen-name-input"</span> class=<span class="cs">"screen"</span>&gt;
+  &lt;div class=<span class="cs">"modal-overlay"</span>&gt;
+    &lt;div class=<span class="cs">"modal-box"</span> role=<span class="cs">"dialog"</span> aria-labelledby=<span class="cs">"name-input-title"</span>&gt;
+      &lt;h2 id=<span class="cs">"name-input-title"</span>&gt;請輸入你的名字&lt;/h2&gt;
+      &lt;input type=<span class="cs">"text"</span> id=<span class="cs">"input-player-name"</span> class=<span class="cs">"name-input-field"</span>
+             maxlength=<span class="cs">"6"</span> placeholder=<span class="cs">"林夏"</span> autocomplete=<span class="cs">"off"</span> spellcheck=<span class="cs">"false"</span>&gt;
+      &lt;p class=<span class="cs">"name-hint"</span>&gt;最多 6 字，留空使用預設名「林夏」&lt;/p&gt;
+      &lt;div class=<span class="cs">"modal-actions"</span>&gt;
+        &lt;button id=<span class="cs">"btn-confirm-name"</span> class=<span class="cs">"btn-primary"</span>&gt;確認&lt;/button&gt;
+        &lt;button id=<span class="cs">"btn-cancel-name"</span>  class=<span class="cs">"btn-ghost"</span>&gt;返回&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/section&gt;
+
+<span class="cm">&lt;!-- ══ SCREEN: 主遊戲畫面 ══ --&gt;</span>
+&lt;section id=<span class="cs">"screen-game"</span> class=<span class="cs">"screen"</span>&gt;
+  &lt;div id=<span class="cs">"game-bg"</span> class=<span class="cs">"game-background"</span> aria-hidden=<span class="cs">"true"</span>&gt;&lt;/div&gt;
+  &lt;div id=<span class="cs">"character-layer"</span> class=<span class="cs">"character-layer"</span> aria-hidden=<span class="cs">"true"</span>&gt;
+    &lt;div id=<span class="cs">"char-left"</span>   class=<span class="cs">"character-sprite"</span> data-position=<span class="cs">"left"</span>&gt;&lt;/div&gt;
+    &lt;div id=<span class="cs">"char-center"</span> class=<span class="cs">"character-sprite"</span> data-position=<span class="cs">"center"</span>&gt;&lt;/div&gt;
+    &lt;div id=<span class="cs">"char-right"</span>  class=<span class="cs">"character-sprite"</span> data-position=<span class="cs">"right"</span>&gt;&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div id=<span class="cs">"cg-layer"</span> class=<span class="cs">"cg-layer hidden"</span> aria-hidden=<span class="cs">"true"</span>&gt;
+    &lt;img id=<span class="cs">"cg-image"</span> src=<span class="cs">""</span> alt=<span class="cs">""</span>&gt;
+  &lt;/div&gt;
+  &lt;header id=<span class="cs">"game-hud"</span> class=<span class="cs">"game-hud"</span>&gt;
+    &lt;button id=<span class="cs">"btn-menu"</span>       class=<span class="cs">"hud-btn"</span> aria-label=<span class="cs">"選單"</span>&gt;☰&lt;/button&gt;
+    &lt;div    id=<span class="cs">"chapter-title"</span>  class=<span class="cs">"chapter-title"</span>&gt;&lt;/div&gt;
+    &lt;div class=<span class="cs">"hud-right"</span>&gt;
+      &lt;button id=<span class="cs">"btn-auto"</span>       class=<span class="cs">"hud-btn"</span> aria-label=<span class="cs">"自動播放"</span>&gt;AUTO&lt;/button&gt;
+      &lt;button id=<span class="cs">"btn-skip"</span>       class=<span class="cs">"hud-btn"</span> aria-label=<span class="cs">"快速略過"</span>&gt;SKIP&lt;/button&gt;
+      &lt;button id=<span class="cs">"btn-log"</span>        class=<span class="cs">"hud-btn"</span> aria-label=<span class="cs">"對話記錄"</span>&gt;LOG&lt;/button&gt;
+      &lt;button id=<span class="cs">"btn-save-quick"</span> class=<span class="cs">"hud-btn"</span> aria-label=<span class="cs">"快速存檔"</span>&gt;SAVE&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/header&gt;
+  &lt;div id=<span class="cs">"affinity-hud"</span> class=<span class="cs">"affinity-hud hidden"</span>&gt;
+    &lt;span id=<span class="cs">"affinity-char-name"</span>&gt;&lt;/span&gt;
+    &lt;div class=<span class="cs">"affinity-bar-track"</span>&gt;
+      &lt;div id=<span class="cs">"affinity-bar-fill"</span> class=<span class="cs">"affinity-bar-fill"</span>&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;span id=<span class="cs">"affinity-value"</span>&gt;0&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div id=<span class="cs">"dialog-area"</span> class=<span class="cs">"dialog-area"</span>&gt;
+    &lt;div id=<span class="cs">"dialog-nameplate"</span> class=<span class="cs">"dialog-nameplate"</span>&gt;
+      &lt;span id=<span class="cs">"dialog-char-name"</span>&gt;&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div id=<span class="cs">"dialog-box"</span> class=<span class="cs">"dialog-box"</span>
+         role=<span class="cs">"region"</span> aria-label=<span class="cs">"對話內容"</span> aria-live=<span class="cs">"polite"</span>&gt;
+      &lt;p id=<span class="cs">"dialog-text"</span> class=<span class="cs">"dialog-text"</span>&gt;&lt;/p&gt;
+      &lt;button id=<span class="cs">"btn-advance"</span> class=<span class="cs">"advance-indicator"</span> aria-label=<span class="cs">"繼續"</span>&gt;▼&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div id=<span class="cs">"choice-menu"</span> class=<span class="cs">"choice-menu hidden"</span> role=<span class="cs">"dialog"</span> aria-label=<span class="cs">"選擇"</span>&gt;
+    &lt;div id=<span class="cs">"choice-list"</span> class=<span class="cs">"choice-list"</span>&gt;&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div id=<span class="cs">"puzzle-overlay"</span> class=<span class="cs">"puzzle-overlay hidden"</span>
+       role=<span class="cs">"dialog"</span> aria-labelledby=<span class="cs">"puzzle-title"</span>&gt;
+    &lt;div class=<span class="cs">"puzzle-box"</span>&gt;
+      &lt;div class=<span class="cs">"puzzle-terminal-bar"</span> aria-hidden=<span class="cs">"true"</span>&gt;&lt;span&gt;root@cipherheart:~$&lt;/span&gt;&lt;/div&gt;
+      &lt;h3 id=<span class="cs">"puzzle-title"</span>&gt;&lt;/h3&gt;
+      &lt;div id=<span class="cs">"puzzle-description"</span>&gt;&lt;/div&gt;
+      &lt;div id=<span class="cs">"puzzle-content"</span>&gt;&lt;/div&gt;
+      &lt;div class=<span class="cs">"puzzle-actions"</span>&gt;
+        &lt;button id=<span class="cs">"btn-puzzle-hint"</span>   class=<span class="cs">"btn-ghost"</span>&gt;💡 提示&lt;/button&gt;
+        &lt;button id=<span class="cs">"btn-puzzle-submit"</span> class=<span class="cs">"btn-primary"</span>&gt;提交答案&lt;/button&gt;
+      &lt;/div&gt;
+      &lt;div id=<span class="cs">"puzzle-feedback"</span>  aria-live=<span class="cs">"assertive"</span>&gt;&lt;/div&gt;
+      &lt;div id=<span class="cs">"puzzle-hint-text"</span> class=<span class="cs">"hidden"</span>&gt;&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div id=<span class="cs">"pause-menu"</span> class=<span class="cs">"pause-menu hidden"</span> role=<span class="cs">"dialog"</span> aria-label=<span class="cs">"暫停選單"</span>&gt;
+    &lt;div class=<span class="cs">"pause-box"</span>&gt;
+      &lt;h2&gt;— PAUSED —&lt;/h2&gt;
+      &lt;button id=<span class="cs">"btn-resume"</span>              class=<span class="cs">"menu-btn"</span>&gt;繼續遊戲&lt;/button&gt;
+      &lt;button id=<span class="cs">"btn-save-from-pause"</span>     class=<span class="cs">"menu-btn"</span>&gt;存檔&lt;/button&gt;
+      &lt;button id=<span class="cs">"btn-load-from-pause"</span>     class=<span class="cs">"menu-btn"</span>&gt;讀檔&lt;/button&gt;
+      &lt;button id=<span class="cs">"btn-settings-from-pause"</span> class=<span class="cs">"menu-btn"</span>&gt;設定&lt;/button&gt;
+      &lt;button id=<span class="cs">"btn-to-title"</span>            class=<span class="cs">"menu-btn btn-danger"</span>&gt;回標題&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div id=<span class="cs">"backlog-panel"</span> class=<span class="cs">"backlog-panel hidden"</span> role=<span class="cs">"dialog"</span>&gt;
+    &lt;div class=<span class="cs">"backlog-header"</span>&gt;
+      &lt;h2&gt;對話記錄&lt;/h2&gt;
+      &lt;button id=<span class="cs">"btn-close-backlog"</span> class=<span class="cs">"btn-ghost"</span>&gt;✕&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div id=<span class="cs">"backlog-list"</span> role=<span class="cs">"log"</span>&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/section&gt;
+
+<span class="cm">&lt;!-- ══ SCREEN: 存讀檔 ══ --&gt;</span>
+&lt;section id=<span class="cs">"screen-save"</span> class=<span class="cs">"screen"</span>&gt;
+  &lt;div class=<span class="cs">"save-panel"</span>&gt;
+    &lt;div class=<span class="cs">"save-header"</span>&gt;
+      &lt;h1 id=<span class="cs">"save-mode-title"</span>&gt;存檔&lt;/h1&gt;
+      &lt;button id=<span class="cs">"btn-close-save"</span> class=<span class="cs">"btn-ghost"</span>&gt;✕&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div id=<span class="cs">"save-slot-grid"</span> class=<span class="cs">"save-slot-grid"</span>&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/section&gt;
+
+<span class="cm">&lt;!-- ══ SCREEN: CG 鑑賞室 ══ --&gt;</span>
+&lt;section id=<span class="cs">"screen-gallery"</span> class=<span class="cs">"screen"</span>&gt;
+  &lt;div class=<span class="cs">"gallery-panel"</span>&gt;
+    &lt;header class=<span class="cs">"gallery-header"</span>&gt;
+      &lt;h1&gt;CG 鑑賞&lt;/h1&gt;
+      &lt;div class=<span class="cs">"gallery-filter"</span> role=<span class="cs">"tablist"</span>&gt;
+        &lt;button class=<span class="cs">"filter-btn active"</span> data-filter=<span class="cs">"all"</span>     role=<span class="cs">"tab"</span>&gt;全部&lt;/button&gt;
+        &lt;button class=<span class="cs">"filter-btn"</span>        data-filter=<span class="cs">"luze"</span>    role=<span class="cs">"tab"</span>&gt;陸澤&lt;/button&gt;
+        &lt;button class=<span class="cs">"filter-btn"</span>        data-filter=<span class="cs">"xiechen"</span> role=<span class="cs">"tab"</span>&gt;謝晨&lt;/button&gt;
+        &lt;button class=<span class="cs">"filter-btn"</span>        data-filter=<span class="cs">"linjing"</span> role=<span class="cs">"tab"</span>&gt;林鏡&lt;/button&gt;
+        &lt;button class=<span class="cs">"filter-btn"</span>        data-filter=<span class="cs">"chuyan"</span>  role=<span class="cs">"tab"</span>&gt;楚言&lt;/button&gt;
+      &lt;/div&gt;
+      &lt;button id=<span class="cs">"btn-close-gallery"</span> class=<span class="cs">"btn-ghost"</span>&gt;← 返回&lt;/button&gt;
+    &lt;/header&gt;
+    &lt;div id=<span class="cs">"gallery-grid"</span> class=<span class="cs">"gallery-grid"</span> role=<span class="cs">"list"</span>&gt;&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div id=<span class="cs">"cg-viewer"</span> class=<span class="cs">"cg-viewer hidden"</span> role=<span class="cs">"dialog"</span>&gt;
+    &lt;button id=<span class="cs">"btn-cg-prev"</span>  class=<span class="cs">"cg-nav"</span>&gt;‹&lt;/button&gt;
+    &lt;img    id=<span class="cs">"cg-viewer-img"</span> src=<span class="cs">""</span> alt=<span class="cs">""</span>&gt;
+    &lt;button id=<span class="cs">"btn-cg-next"</span>  class=<span class="cs">"cg-nav"</span>&gt;›&lt;/button&gt;
+    &lt;button id=<span class="cs">"btn-cg-close"</span> class=<span class="cs">"cg-viewer-close"</span>&gt;✕&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/section&gt;
+
+<span class="cm">&lt;!-- ══ SCREEN: 角色路線選擇 ══ --&gt;</span>
+&lt;section id=<span class="cs">"screen-route-select"</span> class=<span class="cs">"screen"</span>&gt;
+  &lt;div class=<span class="cs">"route-select-panel"</span>&gt;
+    &lt;h1 class=<span class="cs">"route-select-title"</span>&gt;你想更了解誰？&lt;/h1&gt;
+    &lt;p  class=<span class="cs">"route-select-hint"</span>&gt;選擇後將進入該角色的專屬路線&lt;/p&gt;
+    &lt;div id=<span class="cs">"route-cards"</span> class=<span class="cs">"route-cards"</span>&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/section&gt;
+
+<span class="cm">&lt;!-- ══ SCREEN: 設定 ══ --&gt;</span>
+&lt;section id=<span class="cs">"screen-settings"</span> class=<span class="cs">"screen"</span>&gt;
+  &lt;div class=<span class="cs">"settings-panel"</span>&gt;
+    &lt;h1&gt;設定&lt;/h1&gt;
+    &lt;div class=<span class="cs">"settings-group"</span>&gt;
+      &lt;label for=<span class="cs">"setting-text-speed"</span>&gt;文字速度&lt;/label&gt;
+      &lt;input type=<span class="cs">"range"</span> id=<span class="cs">"setting-text-speed"</span> min=<span class="cs">"10"</span> max=<span class="cs">"100"</span> value=<span class="cs">"40"</span>&gt;
+      &lt;span id=<span class="cs">"setting-text-speed-val"</span>&gt;40&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class=<span class="cs">"settings-group"</span>&gt;
+      &lt;label for=<span class="cs">"setting-auto-speed"</span>&gt;自動播放間隔（秒）&lt;/label&gt;
+      &lt;input type=<span class="cs">"range"</span> id=<span class="cs">"setting-auto-speed"</span> min=<span class="cs">"1"</span> max=<span class="cs">"5"</span> value=<span class="cs">"2"</span> step=<span class="cs">"0.5"</span>&gt;
+      &lt;span id=<span class="cs">"setting-auto-speed-val"</span>&gt;2&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class=<span class="cs">"settings-group"</span>&gt;
+      &lt;label for=<span class="cs">"setting-dialog-opacity"</span>&gt;對話框透明度&lt;/label&gt;
+      &lt;input type=<span class="cs">"range"</span> id=<span class="cs">"setting-dialog-opacity"</span> min=<span class="cs">"0.5"</span> max=<span class="cs">"1"</span> value=<span class="cs">"0.85"</span> step=<span class="cs">"0.05"</span>&gt;
+      &lt;span id=<span class="cs">"setting-dialog-opacity-val"</span>&gt;85%&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class=<span class="cs">"settings-actions"</span>&gt;
+      &lt;button id=<span class="cs">"btn-settings-reset"</span> class=<span class="cs">"btn-ghost"</span>&gt;重置預設&lt;/button&gt;
+      &lt;button id=<span class="cs">"btn-settings-close"</span> class=<span class="cs">"btn-primary"</span>&gt;儲存並關閉&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/section&gt;
+
+<span class="cm">&lt;!-- ══ SCREEN: 結局畫面 ══ --&gt;</span>
+&lt;section id=<span class="cs">"screen-ending"</span> class=<span class="cs">"screen"</span>&gt;
+  &lt;div id=<span class="cs">"ending-bg"</span>     aria-hidden=<span class="cs">"true"</span>&gt;&lt;/div&gt;
+  &lt;div id=<span class="cs">"ending-overlay"</span> aria-hidden=<span class="cs">"true"</span>&gt;&lt;/div&gt;
+  &lt;div class=<span class="cs">"ending-content"</span>&gt;
+    &lt;div id=<span class="cs">"ending-type-badge"</span> class=<span class="cs">"ending-badge"</span>&gt;&lt;/div&gt;
+    &lt;img id=<span class="cs">"ending-cg"</span>   src=<span class="cs">""</span> alt=<span class="cs">""</span>&gt;
+    &lt;h2 id=<span class="cs">"ending-title"</span>&gt;&lt;/h2&gt;
+    &lt;p  id=<span class="cs">"ending-text"</span>&gt;&lt;/p&gt;
+    &lt;div class=<span class="cs">"ending-actions"</span>&gt;
+      &lt;button id=<span class="cs">"btn-ending-gallery"</span> class=<span class="cs">"btn-ghost"</span>&gt;查看 CG 鑑賞&lt;/button&gt;
+      &lt;button id=<span class="cs">"btn-ending-again"</span>   class=<span class="cs">"btn-ghost"</span>&gt;再玩一次此路線&lt;/button&gt;
+      &lt;button id=<span class="cs">"btn-ending-title"</span>   class=<span class="cs">"btn-primary"</span>&gt;回到標題&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/section&gt;
+
+<span class="cm">&lt;!-- ══ 全域：Toast 通知 ══ --&gt;</span>
+&lt;div id=<span class="cs">"toast-container"</span> aria-live=<span class="cs">"polite"</span> aria-atomic=<span class="cs">"true"</span>&gt;&lt;/div&gt;
+
+<span class="cm">&lt;!-- ══ 全域：過場遮罩 ══ --&gt;</span>
+&lt;div id=<span class="cs">"transition-mask"</span> aria-hidden=<span class="cs">"true"</span>&gt;&lt;/div&gt;
+
+<span class="cm">&lt;!-- JS 載入（defer 確保 DOM 就緒）--&gt;</span>
+&lt;script src=<span class="cs">"js/engine/SaveSystem.js"</span>         defer&gt;&lt;/script&gt;
+&lt;script src=<span class="cs">"js/engine/GameEngine.js"</span>         defer&gt;&lt;/script&gt;
+&lt;script src=<span class="cs">"js/engine/SceneManager.js"</span>       defer&gt;&lt;/script&gt;
+&lt;script src=<span class="cs">"js/engine/DialogManager.js"</span>      defer&gt;&lt;/script&gt;
+&lt;script src=<span class="cs">"js/data/characters.js"</span>           defer&gt;&lt;/script&gt;
+&lt;script src=<span class="cs">"js/data/puzzles.js"</span>              defer&gt;&lt;/script&gt;
+&lt;script src=<span class="cs">"js/data/scenes/prologue.js"</span>      defer&gt;&lt;/script&gt;
+&lt;script src=<span class="cs">"js/data/scenes/ch01.js"</span>          defer&gt;&lt;/script&gt;
+&lt;script src=<span class="cs">"js/data/scenes/ch02.js"</span>          defer&gt;&lt;/script&gt;
+&lt;script src=<span class="cs">"js/data/scenes/luze/ch03.js"</span>     defer&gt;&lt;/script&gt;
+&lt;script src=<span class="cs">"js/data/scenes/luze/ch04.js"</span>     defer&gt;&lt;/script&gt;
+&lt;script src=<span class="cs">"js/data/scenes/luze/ch05.js"</span>     defer&gt;&lt;/script&gt;
+&lt;script src=<span class="cs">"js/data/scenes/xiechen/ch03.js"</span>  defer&gt;&lt;/script&gt;
+&lt;script src=<span class="cs">"js/data/scenes/xiechen/ch04.js"</span>  defer&gt;&lt;/script&gt;
+&lt;script src=<span class="cs">"js/data/scenes/xiechen/ch05.js"</span>  defer&gt;&lt;/script&gt;
+&lt;script src=<span class="cs">"js/data/scenes/linjing/ch03.js"</span>  defer&gt;&lt;/script&gt;
+&lt;script src=<span class="cs">"js/data/scenes/linjing/ch04.js"</span>  defer&gt;&lt;/script&gt;
+&lt;script src=<span class="cs">"js/data/scenes/linjing/ch05.js"</span>  defer&gt;&lt;/script&gt;
+&lt;script src=<span class="cs">"js/data/scenes/chuyan/ch03.js"</span>   defer&gt;&lt;/script&gt;
+&lt;script src=<span class="cs">"js/data/scenes/chuyan/ch04.js"</span>   defer&gt;&lt;/script&gt;
+&lt;script src=<span class="cs">"js/data/scenes/chuyan/ch05.js"</span>   defer&gt;&lt;/script&gt;
+&lt;script src=<span class="cs">"js/ui/DialogBox.js"</span>             defer&gt;&lt;/script&gt;
+&lt;script src=<span class="cs">"js/ui/ChoiceMenu.js"</span>            defer&gt;&lt;/script&gt;
+&lt;script src=<span class="cs">"js/ui/AffinityBar.js"</span>           defer&gt;&lt;/script&gt;
+&lt;script src=<span class="cs">"js/ui/SaveSlots.js"</span>             defer&gt;&lt;/script&gt;
+&lt;script src=<span class="cs">"js/ui/Gallery.js"</span>               defer&gt;&lt;/script&gt;
+&lt;script src=<span class="cs">"js/main.js"</span>                     defer&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+</div>
+
+<!-- ══ PHASE ══ -->
+<div id="phase" class="section">
+  <div class="section-header">
+    <span class="section-num">PHASE</span>
+    <h2>實作優先順序</h2>
+  </div>
+  <ul class="phase-list">
+    <li class="phase-item">
+      <span class="phase-num">P1</span>
+      <div>
+        <div class="phase-title">核心骨架</div>
+        <div class="phase-files"><code>index.html</code> · <code>css/main.css</code> · <code>css/screens.css</code> · <code>css/animations.css</code> · <code>GameEngine.js</code> · <code>SceneManager.js</code> · <code>DialogManager.js</code></div>
+      </div>
+    </li>
+    <li class="phase-item">
+      <span class="phase-num">P2</span>
+      <div>
+        <div class="phase-title">資料層</div>
+        <div class="phase-files"><code>SaveSystem.js</code>（含 checksum）· <code>characters.js</code> · <code>puzzles.js</code> · 序章 + ch01 + ch02 劇本</div>
+      </div>
+    </li>
+    <li class="phase-item">
+      <span class="phase-num">P3</span>
+      <div>
+        <div class="phase-title">UI 元件</div>
+        <div class="phase-files">存讀檔畫面 · CG 鑑賞室 · 設定畫面 · 暫停選單 · Backlog · Toast 通知</div>
+      </div>
+    </li>
+    <li class="phase-item">
+      <span class="phase-num">P4</span>
+      <div>
+        <div class="phase-title">劇本與圖片整合</div>
+        <div class="phase-files">各角色路線 ch03~ch05 × 4 · 角色立繪整合 · 場景背景 · CG 圖</div>
+      </div>
+    </li>
+    <li class="phase-item">
+      <span class="phase-num">P5</span>
+      <div>
+        <div class="phase-title">品質強化 &amp; 部署</div>
+        <div class="phase-files">響應式 CSS · XSS / checksum 測試 · 跨瀏覽器驗證 · <code>README.md</code> + GitHub Pages 設定</div>
+      </div>
+    </li>
+  </ul>
+</div>
+
+<!-- ══ RULES ══ -->
+<div id="rules" class="section">
+  <div class="section-header">
+    <span class="section-num">RULES</span>
+    <h2>給 Gemini 的強制規則</h2>
+  </div>
+  <div class="callout danger"><span class="label">MANDATORY</span>以下規則為強制要求。任何一條違反都應立即停止並修正。</div>
+  <div class="rules">
+    <div class="rule">
+      <span class="icon">🔒</span>
+      <span class="rule-text"><strong>禁止 innerHTML 注入動態內容：</strong>所有玩家名稱、對話文字等動態內容，一律使用 <code>element.textContent = …</code>。<code>innerHTML</code> 只能用於靜態模板字串（不含任何外部輸入）。</span>
+    </div>
+    <div class="rule">
+      <span class="icon">🔐</span>
+      <span class="rule-text"><strong>存檔 checksum 為必要功能：</strong><code>SaveSystem._hash()</code> 的 djb2 checksum 驗證不可省略，必須在 <code>load()</code> 時驗證，失敗拒絕載入。</span>
+    </div>
+    <div class="rule">
+      <span class="icon">📦</span>
+      <span class="rule-text"><strong>零外部 JS 依賴：</strong>禁止引入任何 CDN JavaScript（jQuery、lodash、axios 等）。唯一例外是 Google Fonts CSS（非 JS）。</span>
+    </div>
+    <div class="rule">
+      <span class="icon">🗂️</span>
+      <span class="rule-text"><strong>劇本只定義資料：</strong>場景 JS 檔案只輸出資料陣列，禁止在資料層操作 DOM 或 localStorage。所有副作用由 Engine 處理。</span>
+    </div>
+    <div class="rule">
+      <span class="icon">🔑</span>
+      <span class="rule-text"><strong>所有按鈕 ID 唯一且語意化：</strong>依本文件定義的 id 命名規範實作，便於自動化測試。</span>
+    </div>
+    <div class="rule">
+      <span class="icon">🖼️</span>
+      <span class="rule-text"><strong>圖片尚未就緒時使用 CSS 漸層佔位：</strong>角色立繪若圖片路徑不存在，用角色色票的漸層 CSS 背景取代，保持介面可運作不報錯。</span>
+    </div>
+    <div class="rule">
+      <span class="icon">📝</span>
+      <span class="rule-text"><strong>依 Phase 順序實作，完成後回報：</strong>完成每個 Phase 後必須回報「P[N] 完成，已實作：…」再繼續下一個 Phase。</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- /wrapper -->
+
+<footer>
+  CipherHeart · dev-plan.html · v1.0 · 2026-07-10 · 供 Gemini 3.5 實作使用
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,133 @@
+/* 淡入淡出 */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease forwards;
+}
+
+.fade-out {
+  animation: fadeOut 0.5s ease forwards;
+}
+
+/* 呼吸脈衝效果 (用於推進箭頭與 HUD 霓虹) */
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, 0) scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate(-50%, 4px) scale(1.1);
+    opacity: 1;
+    text-shadow: 0 0 8px var(--color-accent-cyan);
+  }
+  100% {
+    transform: translate(-50%, 0) scale(1);
+    opacity: 0.6;
+  }
+}
+
+/* 用於一般元素 pulse 的通用 keyframe */
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.8;
+    box-shadow: 0 0 5px var(--color-border);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 15px var(--color-accent-cyan);
+  }
+}
+
+/* Toast 進入動畫 */
+@keyframes toastIn {
+  from {
+    transform: translateY(-20px) scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Toast 退出動畫 */
+@keyframes toastOut {
+  from {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-20px) scale(0.95);
+    opacity: 0;
+  }
+}
+
+/* 打字機游標閃爍 */
+@keyframes blinkCursor {
+  from, to { border-color: transparent }
+  50% { border-color: var(--color-accent-cyan); }
+}
+
+/* 對話框漸現動畫 */
+@keyframes dialogSlideUp {
+  from {
+    transform: translate(-50%, 20px);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
+
+.dialog-slide-up {
+  animation: dialogSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* 角色進入動畫 */
+@keyframes charEnterLeft {
+  from { transform: translateX(-40px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes charEnterRight {
+  from { transform: translateX(40px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes charEnterCenter {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.char-enter-left { animation: charEnterLeft 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.char-enter-right { animation: charEnterRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.char-enter-center { animation: charEnterCenter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+/* 角色退出動畫 */
+@keyframes charExitLeft {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(-40px); opacity: 0; }
+}
+
+@keyframes charExitRight {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(40px); opacity: 0; }
+}
+
+@keyframes charExitCenter {
+  from { transform: translateY(0); opacity: 1; }
+  to { transform: translateY(30px); opacity: 0; }
+}
+
+.char-exit-left { animation: charExitLeft 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.char-exit-right { animation: charExitRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.char-exit-center { animation: charExitCenter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }

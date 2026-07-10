@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="CipherHeart - CTF 資安主題乙女遊戲">
+  <title>CipherHeart｜在那個終端機亮起的夜晚</title>
+  <!-- 字型 (允許外部資源) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/screens.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+
+  <!-- ══ SCREEN: 標題畫面 ══ -->
+  <section id="screen-title" class="screen active">
+    <div class="title-bg" aria-hidden="true"></div>
+    <div class="title-overlay" aria-hidden="true"></div>
+    <div class="title-content">
+      <div class="title-logo">
+        <h1 class="logo-text">CipherHeart</h1>
+        <p class="title-subtitle">在那個終端機亮起的夜晚</p>
+      </div>
+      <nav class="title-menu" aria-label="主選單">
+        <button id="btn-new-game" class="menu-btn">新遊戲</button>
+        <button id="btn-continue" class="menu-btn">繼續</button>
+        <button id="btn-gallery" class="menu-btn">CG 鑑賞</button>
+        <button id="btn-settings" class="menu-btn">設定</button>
+        <button id="btn-about" class="menu-btn">關於</button>
+      </nav>
+    </div>
+  </section>
+
+  <!-- ══ SCREEN: 名稱輸入 ══ -->
+  <section id="screen-name-input" class="screen">
+    <div class="modal-overlay">
+      <div class="modal-box" role="dialog" aria-labelledby="name-input-title">
+        <h2 id="name-input-title">請輸入你的名字</h2>
+        <input type="text" id="input-player-name" class="name-input-field"
+               maxlength="6" placeholder="林夏" autocomplete="off" spellcheck="false">
+        <p class="name-hint">最多 6 字，留空使用預設名「林夏」</p>
+        <div class="modal-actions">
+          <button id="btn-confirm-name" class="btn-primary">確認</button>
+          <button id="btn-cancel-name" class="btn-ghost">返回</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SCREEN: 主遊戲畫面 ══ -->
+  <section id="screen-game" class="screen">
+    <div id="game-bg" class="game-background" aria-hidden="true"></div>
+    
+    <div id="character-layer" class="character-layer" aria-hidden="true">
+      <div id="char-left" class="character-sprite" data-position="left"></div>
+      <div id="char-center" class="character-sprite" data-position="center"></div>
+      <div id="char-right" class="character-sprite" data-position="right"></div>
+    </div>
+    
+    <div id="cg-layer" class="cg-layer hidden" aria-hidden="true">
+      <img id="cg-image" src="" alt="">
+    </div>
+    
+    <header id="game-hud" class="game-hud">
+      <button id="btn-menu" class="hud-btn" aria-label="選單">☰</button>
+      <div id="chapter-title" class="chapter-title">序章：起點</div>
+      <div class="hud-right">
+        <button id="btn-auto" class="hud-btn" aria-label="自動播放">AUTO</button>
+        <button id="btn-skip" class="hud-btn" aria-label="快速略過">SKIP</button>
+        <button id="btn-log" class="hud-btn" aria-label="對話記錄">LOG</button>
+        <button id="btn-save-quick" class="hud-btn" aria-label="快速存檔">SAVE</button>
+      </div>
+    </header>
+    
+    <div id="affinity-hud" class="affinity-hud hidden">
+      <span id="affinity-char-name"></span>
+      <div class="affinity-bar-track">
+        <div id="affinity-bar-fill" class="affinity-bar-fill"></div>
+      </div>
+      <span id="affinity-value">0</span>
+    </div>
+    
+    <div id="dialog-area" class="dialog-area">
+      <div id="dialog-nameplate" class="dialog-nameplate">
+        <span id="dialog-char-name"></span>
+      </div>
+      <div id="dialog-box" class="dialog-box" role="region" aria-label="對話內容" aria-live="polite">
+        <p id="dialog-text" class="dialog-text"></p>
+        <button id="btn-advance" class="advance-indicator" aria-label="繼續">▼</button>
+      </div>
+    </div>
+    
+    <div id="choice-menu" class="choice-menu hidden" role="dialog" aria-label="選擇">
+      <div id="choice-list" class="choice-list"></div>
+    </div>
+    
+    <div id="puzzle-overlay" class="puzzle-overlay hidden" role="dialog" aria-labelledby="puzzle-title">
+      <div class="puzzle-box">
+        <div class="puzzle-terminal-bar" aria-hidden="true">
+          <span>root@cipherheart:~$</span>
+        </div>
+        <h3 id="puzzle-title"></h3>
+        <div id="puzzle-description"></div>
+        <div id="puzzle-content"></div>
+        <div class="puzzle-actions">
+          <button id="btn-puzzle-hint" class="btn-ghost">💡 提示</button>
+          <button id="btn-puzzle-submit" class="btn-primary">提交答案</button>
+        </div>
+        <div id="puzzle-feedback" aria-live="assertive"></div>
+        <div id="puzzle-hint-text" class="puzzle-hint hidden"></div>
+      </div>
+    </div>
+    
+    <div id="pause-menu" class="pause-menu hidden" role="dialog" aria-label="暫停選單">
+      <div class="pause-box">
+        <h2>— PAUSED —</h2>
+        <button id="btn-resume" class="menu-btn">繼續遊戲</button>
+        <button id="btn-save-from-pause" class="menu-btn">存檔</button>
+        <button id="btn-load-from-pause" class="menu-btn">讀檔</button>
+        <button id="btn-settings-from-pause" class="menu-btn">設定</button>
+        <button id="btn-to-title" class="menu-btn btn-danger">回標題</button>
+      </div>
+    </div>
+    
+    <div id="backlog-panel" class="backlog-panel hidden" role="dialog" aria-label="對話記錄">
+      <div class="backlog-header">
+        <h2>對話記錄</h2>
+        <button id="btn-close-backlog" class="btn-ghost" aria-label="關閉">✕</button>
+      </div>
+      <div id="backlog-list" class="backlog-list" role="log" aria-label="歷史對話"></div>
+    </div>
+  </section>
+
+  <!-- ══ SCREEN: 存讀檔 ══ -->
+  <section id="screen-save" class="screen">
+    <div class="save-panel">
+      <div class="save-header">
+        <h1 id="save-mode-title">存檔</h1>
+        <button id="btn-close-save" class="btn-ghost" aria-label="關閉">✕</button>
+      </div>
+      <div id="save-slot-grid" class="save-slot-grid"></div>
+    </div>
+  </section>
+
+  <!-- ══ SCREEN: CG 鑑賞室 ══ -->
+  <section id="screen-gallery" class="screen">
+    <div class="gallery-panel">
+      <header class="gallery-header">
+        <h1>CG 鑑賞</h1>
+        <div class="gallery-filter" role="tablist" aria-label="角色篩選">
+          <button class="filter-btn active" data-filter="all" role="tab">全部</button>
+          <button class="filter-btn" data-filter="luze" role="tab">陸澤</button>
+          <button class="filter-btn" data-filter="xiechen" role="tab">謝晨</button>
+          <button class="filter-btn" data-filter="linjing" role="tab">林鏡</button>
+          <button class="filter-btn" data-filter="chuyan" role="tab">楚言</button>
+        </div>
+        <button id="btn-close-gallery" class="btn-ghost">← 返回</button>
+      </header>
+      <div id="gallery-grid" class="gallery-grid" role="list"></div>
+    </div>
+    <div id="cg-viewer" class="cg-viewer hidden" role="dialog" aria-label="CG 瀏覽">
+      <button id="btn-cg-prev" class="cg-nav" aria-label="上一張">‹</button>
+      <img id="cg-viewer-img" src="" alt="">
+      <button id="btn-cg-next" class="cg-nav" aria-label="下一張">›</button>
+      <button id="btn-cg-close" class="cg-viewer-close" aria-label="關閉">✕</button>
+    </div>
+  </section>
+
+  <!-- ══ SCREEN: 角色路線選擇 ══ -->
+  <section id="screen-route-select" class="screen">
+    <div class="route-select-panel">
+      <h1 class="route-select-title">你想更了解誰？</h1>
+      <p class="route-select-hint">選擇後將進入該角色的專屬路線</p>
+      <div id="route-cards" class="route-cards"></div>
+    </div>
+  </section>
+
+  <!-- ══ SCREEN: 設定 ══ -->
+  <section id="screen-settings" class="screen">
+    <div class="settings-panel">
+      <h1>設定</h1>
+      <div class="settings-group">
+        <label for="setting-text-speed">文字速度</label>
+        <input type="range" id="setting-text-speed" min="10" max="100" value="40">
+        <span id="setting-text-speed-val">40</span>
+      </div>
+      <div class="settings-group">
+        <label for="setting-auto-speed">自動播放間隔（秒）</label>
+        <input type="range" id="setting-auto-speed" min="1" max="5" value="2" step="0.5">
+        <span id="setting-auto-speed-val">2</span>
+      </div>
+      <div class="settings-group">
+        <label for="setting-dialog-opacity">對話框透明度</label>
+        <input type="range" id="setting-dialog-opacity" min="0.5" max="1" value="0.85" step="0.05">
+        <span id="setting-dialog-opacity-val">85%</span>
+      </div>
+      <div class="settings-actions">
+        <button id="btn-settings-reset" class="btn-ghost">重置預設</button>
+        <button id="btn-settings-close" class="btn-primary">儲存並關閉</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SCREEN: 結局畫面 ══ -->
+  <section id="screen-ending" class="screen">
+    <div id="ending-bg" aria-hidden="true"></div>
+    <div id="ending-overlay" aria-hidden="true"></div>
+    <div class="ending-content">
+      <div id="ending-type-badge" class="ending-badge"></div>
+      <img id="ending-cg" src="" alt="">
+      <h2 id="ending-title"></h2>
+      <p id="ending-text"></p>
+      <div class="ending-actions">
+        <button id="btn-ending-gallery" class="btn-ghost">查看 CG 鑑賞</button>
+        <button id="btn-ending-again" class="btn-ghost">再玩一次此路線</button>
+        <button id="btn-ending-title" class="btn-primary">回到標題</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 全域：Toast 通知 ══ -->
+  <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- ══ 全域：過場遮罩 ══ -->
+  <div id="transition-mask" aria-hidden="true"></div>
+
+  <!-- JS 載入 (defer) -->
+  <script src="js/engine/SaveSystem.js" defer></script>
+  <script src="js/engine/GameEngine.js" defer></script>
+  <script src="js/engine/SceneManager.js" defer></script>
+  <script src="js/engine/DialogManager.js" defer></script>
+  <script src="js/data/characters.js" defer></script>
+  <script src="js/data/puzzles.js" defer></script>
+  
+  <!-- 劇本載入 -->
+  <script src="js/data/scenes/prologue.js" defer></script>
+  <script src="js/data/scenes/ch01.js" defer></script>
+  <script src="js/data/scenes/ch02.js" defer></script>
+  <script src="js/data/scenes/luze/ch03.js" defer></script>
+  <script src="js/data/scenes/luze/ch04.js" defer></script>
+  <script src="js/data/scenes/luze/ch05.js" defer></script>
+  <script src="js/data/scenes/xiechen/ch03.js" defer></script>
+  <script src="js/data/scenes/xiechen/ch04.js" defer></script>
+  <script src="js/data/scenes/xiechen/ch05.js" defer></script>
+  <script src="js/data/scenes/linjing/ch03.js" defer></script>
+  <script src="js/data/scenes/linjing/ch04.js" defer></script>
+  <script src="js/data/scenes/linjing/ch05.js" defer></script>
+  <script src="js/data/scenes/chuyan/ch03.js" defer></script>
+  <script src="js/data/scenes/chuyan/ch04.js" defer></script>
+  <script src="js/data/scenes/chuyan/ch05.js" defer></script>
+  
+  <!-- UI 與主入口 -->
+  <script src="js/ui/DialogBox.js" defer></script>
+  <script src="js/ui/ChoiceMenu.js" defer></script>
+  <script src="js/ui/AffinityBar.js" defer></script>
+  <script src="js/ui/SaveSlots.js" defer></script>
+  <script src="js/ui/Gallery.js" defer></script>
+  <script src="js/main.js" defer></script>
+
+</body>
+</html>

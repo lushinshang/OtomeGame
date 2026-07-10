@@ -107,3 +107,14 @@
 * **面臨問題**：由於對話歷史過長觸發系統截斷，本地日誌檔 `transcript.jsonl` 被強行截斷，只剩下 Step 172 以後的對話，前半段的開局提示詞「優化提示詞」與 AI 思考過程看似丟失。
 * **解決路徑**：我們在 `.system_generated/` 下定位到 Git 快照倉庫（Git Snapshot Tree），並撰寫 Python 自動化解析腳本，對歷史 Commit Commit 快照（159 個 Snapshot 版本）進行深層回溯遍歷，還原出 Step 0 ~ Step 171 的所有歷史 JSONL 資料。隨後，腳本精確識別出乙女遊戲專案起點（Step 0），過濾掉更早期的無關前置專案（字幕轉錄），成功將完整的對話、工具呼叫及**最重要的 AI 思考鏈 (Thinking Chain)** 數位復原，編譯輸出為 650KB 的 `log.md` 專案檔案。
 
+---
+
+## 💡 專案啟發來源 (Inspiration)
+本專案是一次針對 **Vibe Coding** 與 **AI Agentic Coding** 的深度安全開發實踐。
+
+* **啟發來源**：台灣資訊安全大會 [Infosec Taiwan 2026](https://lushinshang.github.io/InfosecTaiwan2026/index.html) 第二天議程。
+* **主題題目**：「Vibe Coding And Then?」
+* **簡報文檔**：[3.Kika_Vibe_Coding_And_Then.pdf](https://lushinshang.github.io/InfosecTaiwan2026/Day2/簡報/3.Kika_Vibe_Coding_And_Then.pdf)
+* **實踐紀實**：人類提出創意、審美約束與安全原則（Vibe），AI 代理則發揮自主規劃能力，在資源有限與截斷的物理邊界下自動修復代碼、繞過沙箱生圖並還原歷史日誌，共同催生了這款兼具安全技術與浪漫劇情的 CTF 乙女遊戲。
+
+

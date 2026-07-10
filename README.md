@@ -2,7 +2,7 @@
 
 本專案是一款以 **CTF (資安競賽) 帥哥** 為主題的純前端單頁網頁版 (SPA) 乙女向視覺小說遊戲。
 
-🎮 **[點此在 GitHub Pages 線上遊玩](https://lanss.github.io/1150710_test/)** *(部署後鏈結)*
+🎮 **[點此在 GitHub Pages 線上遊玩](https://lushinshang.github.io/OtomeGame/)**
 
 ---
 

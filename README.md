@@ -59,6 +59,7 @@
 ```bash
 ├── index.html                   # 唯一入口網頁
 ├── dev-plan.html                # 開發計畫文件
+├── log.md                       # 專案開發對話日誌與 AI 思考鏈 (數位還原版)
 ├── css/
 │   ├── main.css                 # 設計系統 Token 與按鈕樣式
 │   ├── screens.css              # 各畫面佈局與角色定位
